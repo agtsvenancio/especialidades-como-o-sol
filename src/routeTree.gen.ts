@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EspecialidadesRouteImport } from './routes/especialidades'
 import { Route as EspecialidadesIndexRouteImport } from './routes/especialidades.index'
 import { Route as EspecialidadesEspecialidadeRouteImport } from './routes/especialidades.$especialidade'
 
@@ -18,20 +19,26 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EspecialidadesIndexRoute = EspecialidadesIndexRouteImport.update({
-  id: '/especialidades/',
-  path: '/especialidades/',
+const EspecialidadesRoute = EspecialidadesRouteImport.update({
+  id: '/especialidades',
+  path: '/especialidades',
   getParentRoute: () => rootRouteImport,
+} as any)
+const EspecialidadesIndexRoute = EspecialidadesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => EspecialidadesRoute,
 } as any)
 const EspecialidadesEspecialidadeRoute =
   EspecialidadesEspecialidadeRouteImport.update({
-    id: '/especialidades/$especialidade',
-    path: '/especialidades/$especialidade',
-    getParentRoute: () => rootRouteImport,
+    id: '/$especialidade',
+    path: '/$especialidade',
+    getParentRoute: () => EspecialidadesRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/especialidades': typeof EspecialidadesRouteWithChildren
   '/especialidades/$especialidade': typeof EspecialidadesEspecialidadeRoute
   '/especialidades/': typeof EspecialidadesIndexRoute
 }
@@ -43,21 +50,30 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/especialidades': typeof EspecialidadesRouteWithChildren
   '/especialidades/$especialidade': typeof EspecialidadesEspecialidadeRoute
   '/especialidades/': typeof EspecialidadesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/especialidades/$especialidade' | '/especialidades/'
+  fullPaths:
+    | '/'
+    | '/especialidades'
+    | '/especialidades/$especialidade'
+    | '/especialidades/'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/especialidades/$especialidade' | '/especialidades'
-  id: '__root__' | '/' | '/especialidades/$especialidade' | '/especialidades/'
+  id:
+    | '__root__'
+    | '/'
+    | '/especialidades'
+    | '/especialidades/$especialidade'
+    | '/especialidades/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  EspecialidadesEspecialidadeRoute: typeof EspecialidadesEspecialidadeRoute
-  EspecialidadesIndexRoute: typeof EspecialidadesIndexRoute
+  EspecialidadesRoute: typeof EspecialidadesRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -69,27 +85,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/especialidades': {
+      id: '/especialidades'
+      path: '/especialidades'
+      fullPath: '/especialidades'
+      preLoaderRoute: typeof EspecialidadesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/especialidades/': {
       id: '/especialidades/'
-      path: '/especialidades'
+      path: '/'
       fullPath: '/especialidades/'
       preLoaderRoute: typeof EspecialidadesIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof EspecialidadesRoute
     }
     '/especialidades/$especialidade': {
       id: '/especialidades/$especialidade'
-      path: '/especialidades/$especialidade'
+      path: '/$especialidade'
       fullPath: '/especialidades/$especialidade'
       preLoaderRoute: typeof EspecialidadesEspecialidadeRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof EspecialidadesRoute
     }
   }
 }
 
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+interface EspecialidadesRouteChildren {
+  EspecialidadesEspecialidadeRoute: typeof EspecialidadesEspecialidadeRoute
+  EspecialidadesIndexRoute: typeof EspecialidadesIndexRoute
+}
+
+const EspecialidadesRouteChildren: EspecialidadesRouteChildren = {
   EspecialidadesEspecialidadeRoute: EspecialidadesEspecialidadeRoute,
   EspecialidadesIndexRoute: EspecialidadesIndexRoute,
+}
+
+const EspecialidadesRouteWithChildren = EspecialidadesRoute._addFileChildren(
+  EspecialidadesRouteChildren,
+)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  EspecialidadesRoute: EspecialidadesRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
